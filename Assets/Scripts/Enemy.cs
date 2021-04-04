@@ -4,13 +4,13 @@ using System.Collections;
 public class Enemy : MovingObject
     {
         public int playerDamage;
+        public AudioClip attackSound1;
+        public AudioClip attackSound2;
+
 
         private Animator animator;
         private Transform target;
         private bool skipMove;
-
-        public AudioClip attackSound1;
-        public AudioClip attackSound2;
 
 
         protected override void Start()
@@ -28,20 +28,25 @@ public class Enemy : MovingObject
                 skipMove = false;
                 return;
             }
+
             base.AttemptMove<T>(xDir, yDir);
+
             skipMove = true;
         }
-
 
         public void MoveEnemy()
         {
             int xDir = 0;
             int yDir = 0;
+            float DifferenceX = Mathf.Abs(target.position.x - transform.position.x);
+            float DifferenceY = Mathf.Abs(target.position.y - transform.position.y);
 
-            if (Mathf.Abs(target.position.x - transform.position.x) < float.Epsilon)
+
+            if ((DifferenceY > DifferenceX)&&(float.Epsilon < DifferenceY))
+
                 yDir = target.position.y > transform.position.y ? 1 : -1;
 
-            else
+            else if (float.Epsilon < DifferenceX)
                 xDir = target.position.x > transform.position.x ? 1 : -1;
 
             AttemptMove<Player>(xDir, yDir);
@@ -52,7 +57,9 @@ public class Enemy : MovingObject
         {
             Player hitPlayer = component as Player;
             hitPlayer.LoseFood(playerDamage);
-            animator.SetTrigger("enemyAttack");
+
+            animator.SetTrigger("EnemyAttack");
+
             SoundManager.instance.RandomizeSfx(attackSound1, attackSound2);
         }
-    }
+}

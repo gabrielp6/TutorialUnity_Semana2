@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic; 
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,17 +19,29 @@ public class GameManager : MonoBehaviour
     private GameObject levelImage;
     
     public static GameManager instance = null;
-    private BoardManager boardScript;
+    public BoardManager boardScript;
     private int level = 1;
+
+
+    public void GameOver()
+    {
+        levelText.text = "After " + level + " days, you starved.";
+        levelImage.SetActive(true);
+        enabled = false;
+    }
 
 
     void Awake()
     {
         if (instance == null)
+        {
             instance = this;
+        }
 
         else if (instance != this)
+        {
             Destroy(gameObject);
+        }
 
         DontDestroyOnLoad(gameObject);
         enemies = new List<Enemy>();
@@ -37,6 +50,11 @@ public class GameManager : MonoBehaviour
     }
 
 
+    void OnLevelWasLoaded(int index)
+    {
+        level++;
+        InitGame();
+    }
 
 
     void InitGame()
@@ -53,44 +71,11 @@ public class GameManager : MonoBehaviour
     }
 
 
-    void OnLevelWasLoaded(int index)
-    {
-        level++;
-        InitGame();
-    }
-
-
     void HideLevelImage()
     {
         levelImage.SetActive(false);
         doingSetup = false;
     }
-
-
-    void Update()
-    {
-        if (playersTurn || enemiesMoving || doingSetup)
-            return;
-
-        StartCoroutine(MoveEnemies());
-    }
-
-
-    public void AddEnemyToList(Enemy script)
-    {
-        enemies.Add(script);
-    }
-
-
-
-    public void GameOver()
-    {
-        levelText.text = "After " + level + " days, you starved.";
-        levelImage.SetActive(true);
-        enabled = false;
-    }
-
-
 
     IEnumerator MoveEnemies()
     {
@@ -112,4 +97,21 @@ public class GameManager : MonoBehaviour
         enemiesMoving = false;
     }
 
+
+
+    public void AddEnemyToList(Enemy script)
+    {
+        enemies.Add(script);
+    }
+
+
+    void Update()
+    {
+        if (playersTurn || enemiesMoving || doingSetup)
+        {
+            return;
+        }
+
+        StartCoroutine(MoveEnemies());
+    }
 }
